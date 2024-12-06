@@ -1,32 +1,45 @@
 on:
-  workflow_dispatch:
+  push:
 
 jobs:
-  funicular:
+  pyci:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          mkdir -p win/art mac/art linux/art
-          echo win > win/art/art.txt
-          echo win > win/art/win.txt
-          echo mac > mac/art/art.txt
-          echo mac > mac/art/mac.txt
-          echo linux > linux/art/art.txt
-          echo linux > linux/art/linux.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: art-win
-          path: win
-      - uses: actions/upload-artifact@v4
-        with:
-          name: art-mac
-          path: mac
-      - uses: actions/upload-artifact@v4
-        with:
-          name: art-linux
-          path: linux
       - uses: actions/download-artifact@v4
         with:
-          pattern: art-*
-          path: art
-      - run: ls art
+          name: pybinding-source
+          path: pybinding
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 12194329386
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cbinding-library-*
+          path: cbinding
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 12194329386
+
+      - run: |
+          mkdir -p cbinding/install
+          mv cbinding/cbinding-library-Linux-x86_64/include cbinding/install
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - run: |
+          rm pyproject.toml
+          uv venv -p 3.13
+          uv pip install -r requirements.txt
+          uv run scripts/build_ffi.py
+          ls cbinding/cbinding-library-Linux-x86_64
+          mv cbinding/cbinding-library-Linux-x86_64/lib/libgitcg.so gitcg && uv run -m build && rm gitcg/libgitcg.*
+          uv run wheel --remove --platform-tags=manylinux dist/*any.whl
+          mv cbinding/cbinding-library-Windows-x86_64/lib/libgitcg.dll gitcg && uv run -m build && rm gitcg/libgitcg.*
+          uv run wheel --remove --platform-tags=windows_x86_64 dist/*any.whl
+          mv cbinding/cbinding-library-macOS-x86_64/lib/libgitcg.dylib gitcg && uv run -m build && rm gitcg/libgitcg.*
+          uv run wheel --remove --platform-tags=macos_x86_64 dist/*any.whl
+          mv cbinding/cbinding-library-macOS-arm64/lib/libgitcg.dylib gitcg && uv run -m build && rm gitcg/libgitcg.*
+          uv run wheel --remove --platform-tags=macos_arm_64 dist/*any.whl
+          ls dist
+        working-directory: ./pybinding
