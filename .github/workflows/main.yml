@@ -1,2 +1,30 @@
 on:
   workflow_dispatch:
+
+jobs:
+  funicular:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir -p win mac linux
+          echo win > win/win.txt
+          echo mac > mac/mac.txt
+          echo linux > linux/linux.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: art-win
+          path: win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: art-mac
+          path: mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: art-linux
+          path: linux
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: art-*
+          path: art
+          merge-multiple: true
+      - run: ls art
