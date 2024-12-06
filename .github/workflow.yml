@@ -1,0 +1,24 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  system:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release]
+        arch: [x86_64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13' 
+    - run: python -m "import sysconfig;print(sysconfig.get_platform())"
