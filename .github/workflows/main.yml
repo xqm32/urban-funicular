@@ -29,7 +29,4 @@ jobs:
         with:
           pattern: art-*
           path: art
-          merge-multiple: true
-      - run: |
-          ls art/art
-          cat art/art.txt
+      - run: ls
