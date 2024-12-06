@@ -29,4 +29,5 @@ jobs:
         with:
           pattern: art-*
           path: art
-      - run: ls
+          merge-multiple: true
+      - run: ls art
