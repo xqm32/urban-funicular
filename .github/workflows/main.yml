@@ -6,10 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          mkdir -p win mac linux
-          echo win > win/win.txt
-          echo mac > mac/mac.txt
-          echo linux > linux/linux.txt
+          mkdir -p win/art mac/art linux/art
+          echo win > win/art/art.txt
+          echo win > win/art/win.txt
+          echo mac > mac/art/art.txt
+          echo mac > mac/art/mac.txt
+          echo linux > linux/art/art.txt
+          echo linux > linux/art/linux.txt
       - uses: actions/upload-artifact@v4
         with:
           name: art-win
@@ -27,4 +30,6 @@ jobs:
           pattern: art-*
           path: art
           merge-multiple: true
-      - run: ls art
+      - run: |
+          ls art/art
+          cat art/art.txt
